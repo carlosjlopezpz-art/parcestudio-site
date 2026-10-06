@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>Conectando Instagram · ParceStudio</title>
+  <style>body{font:16px system-ui,sans-serif;max-width:38rem;margin:12vh auto;padding:0 1.5rem;color:#1c2432}a{color:#2563eb}p{line-height:1.6}</style>
+</head>
+<body>
+  <h1>Conectando Instagram</h1>
+  <p id="message">Devolviendo la autorización a ParceStudio en este computador…</p>
+  <p><a id="fallback" hidden>Volver a ParceStudio</a></p>
+  <script>
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const state = params.get('state') || '';
+      const code = params.get('code') || '';
+      const error = params.get('error') || '';
+      const message = document.getElementById('message');
+      history.replaceState(null, '', location.pathname);
+      if (!state || state.length > 512 || (!code && !error) || code.length > 2048 || error.length > 200) {
+        message.textContent = 'Meta no devolvió una autorización válida. Inicia la conexión otra vez desde ParceStudio.';
+        return;
+      }
+      const local = new URL('http://127.0.0.1:8000/api/proposals/plataformas/instagram/facebook/callback');
+      local.searchParams.set('state', state);
+      if (code) local.searchParams.set('code', code);
+      else local.searchParams.set('error', error);
+      const fallback = document.getElementById('fallback');
+      fallback.href = local.href;
+      fallback.hidden = false;
+      location.replace(local.href);
+    })();
+  </script>
+</body>
+</html>
